@@ -39,7 +39,7 @@ Kalla Billa Suite is a comprehensive toolkit designed for cybersecurity professi
 
 ### Installation
 ```bash
-git clone [https://github.com/krishna4moon/android_cert_install.git]
+git clone https://github.com/krishna4moon/android_cert_install.git
 cd android_cert_install
 pip install colorama
 ```
