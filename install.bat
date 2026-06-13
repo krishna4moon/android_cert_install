@@ -1,24 +1,26 @@
 @echo off
-title Krishna Certificate Manager - Auto Installer
+title Krishna Certificate Manager Installer
 color 0A
+
+:: ============================================
+:: AUTO-ELEVATE TO ADMINISTRATOR
+:: ============================================
+:: Check if running as admin
+net session >nul 2>&1
+if %errorLevel% neq 0 (
+    echo Requesting Administrator privileges...
+    powershell start -verb runas '%0'
+    exit /b
+)
+
+:: Now running as admin
+cd /d "%~dp0"
 
 echo ================================================
 echo    Krishna Certificate Manager Installer
 echo ================================================
 echo.
-
-:: Check for Administrator privileges
-net session >nul 2>&1
-if %errorLevel% neq 0 (
-    echo [ERROR] Administrator privileges required!
-    echo.
-    echo Right-click and select "Run as Administrator"
-    echo.
-    pause
-    exit /b 1
-)
-
-echo [OK] Administrator privileges confirmed
+echo [OK] Running with Administrator privileges
 echo.
 
 :: ============================================
@@ -63,7 +65,7 @@ if %errorLevel% equ 0 (
 echo.
 
 :: ============================================
-:: STEP 3: Install ADB (Android Platform Tools)
+:: STEP 3: Install ADB
 :: ============================================
 echo [3/4] Installing ADB...
 where adb >nul 2>&1
@@ -625,136 +627,30 @@ echo [OK] cert.py created successfully
 echo.
 
 :: ============================================
-:: CREATE README FILE
+:: CREATE LAUNCHER (No admin required)
 :: ============================================
 (
-echo ================================================
-echo    KRISHNA CERTIFICATE MANAGER - USER GUIDE
-echo ================================================
-echo.
-echo INSTALLATION COMPLETE!
-echo.
-echo QUICK START:
-echo ============
-echo 1. Connect Android device via USB
-echo 2. Enable Developer Options and USB Debugging
-echo 3. Run: python cert.py
-echo 4. Or double-click the desktop shortcut
-echo.
-echo PREPARING CERTIFICATES:
-echo ======================
-echo 1. Export certificate from Burp Suite as .DER
-echo 2. Save it in the same folder as cert.py
-echo 3. Run the tool and select option 1
-echo.
-echo MENU OPTIONS:
-echo ============
-echo 1. Install Certificate  - Push cert to Android
-echo 2. Verify Certificate   - Check if installed
-echo 3. Remove Certificate   - Delete from device
-echo 4. Device Information   - Show device details
-echo 5. Diagnostic Scan      - Troubleshoot issues
-echo 6. Backup Certificates  - Save all certs
-echo 7. Restore Backup       - Restore from backup
-echo 8. Exit                - Close application
-echo.
-echo TROUBLESHOOTING:
-echo ================
-echo Problem: ADB not found
-echo Solution: Run install.bat as Administrator
-echo.
-echo Problem: No devices connected
-echo Solution: Enable USB debugging on device
-echo.
-echo Problem: Root required
-echo Solution: Root device with Magisk
-echo.
-echo Problem: Permission denied
-echo Solution: adb shell su -c "mount -o rw,remount /system"
-echo.
-echo SUPPORTED FORMATS:
-echo =================
-echo - .der (DER encoded)
-echo - .pem (PEM encoded)
-echo - .crt (Certificate)
-echo - .cer (Certificate)
-echo.
-echo ANDROID COMPATIBILITY:
-echo =====================
-echo - Android 8-13: /system/etc/security/cacerts
-echo - Android 14-15: /apex/com.android.conscrypt/cacerts
-echo.
-echo FILES CREATED:
-echo =============
-echo - backups/     (Certificate backups)
-echo - *.pem       (Converted certificates)
-echo - *.0         (Android format)
-echo.
-echo For help, visit: https://github.com/krishna/cert-manager
-echo.
-echo Press any key to close...
-) > "README.txt"
+echo @echo off
+echo title Krishna Certificate Manager
+echo color 0A
+echo cd /d "%~dp0"
+echo python cert.py
+echo pause
+) > "Krishna Cert Manager.bat"
 
-echo [OK] README.txt created
+echo [OK] Launcher created
 echo.
 
 :: ============================================
 :: CREATE DESKTOP SHORTCUT
 :: ============================================
 echo [*] Creating desktop shortcut...
-powershell -Command "$WshShell = New-Object -comObject WScript.Shell; $Shortcut = $WshShell.CreateShortcut(\"$env:USERPROFILE\Desktop\Krishna Cert Manager.lnk\"); $Shortcut.TargetPath = \"cmd.exe\"; $Shortcut.Arguments = \"/c cd \"\"%cd%\"\" && python cert.py && pause\"; $Shortcut.WorkingDirectory = \"%cd%\"; $Shortcut.IconLocation = \"python.exe\"; $Shortcut.Save()" >nul 2>&1
+copy "Krishna Cert Manager.bat" "%USERPROFILE%\Desktop\Krishna Cert Manager.bat" >nul 2>&1
 echo [OK] Desktop shortcut created
 echo.
 
 :: ============================================
-:: CREATE UNINSTALLER
-:: ============================================
-(
-echo @echo off
-echo title Uninstall Krishna Certificate Manager
-echo color 0C
-echo.
-echo echo ================================================
-echo echo    Uninstalling Krishna Certificate Manager
-echo echo ================================================
-echo echo.
-echo echo [*] Removing Python packages...
-echo pip uninstall rich cryptography pyopenssl -y
-echo.
-echo echo [*] Removing OpenSSL...
-echo choco uninstall openssl -y
-echo.
-echo echo [*] Removing ADB...
-echo choco uninstall android-sdk-platform-tools -y
-echo.
-echo echo [*] Removing files...
-echo del /q cert.py
-echo rmdir /s /q backups
-echo del /q "%%userprofile%%\Desktop\Krishna Cert Manager.lnk"
-echo.
-echo echo [OK] Uninstall complete
-echo pause
-) > "uninstall.bat"
-
-echo [OK] uninstall.bat created
-echo.
-
-:: ============================================
-:: CREATE LAUNCHER SCRIPT
-:: ============================================
-(
-echo @echo off
-echo title Krishna Certificate Manager
-echo color 0A
-echo python cert.py
-echo pause
-) > "launch.bat"
-
-echo [OK] launch.bat created
-echo.
-
-:: ============================================
-:: SUMMARY
+:: INSTALLATION COMPLETE - RUN TOOL
 :: ============================================
 echo.
 echo ================================================
@@ -762,45 +658,24 @@ echo    INSTALLATION COMPLETE!
 echo ================================================
 echo.
 echo ✅ Chocolatey installed
-echo ✅ OpenSSL installed
+echo ✅ OpenSSL installed  
 echo ✅ ADB installed
 echo ✅ Python packages installed
 echo ✅ cert.py created
-echo ✅ README.txt created
+echo ✅ Launcher created
 echo ✅ Desktop shortcut created
-echo ✅ uninstall.bat created
-echo ✅ launch.bat created
-echo.
-echo ================================================
-echo    HOW TO USE:
-echo ================================================
-echo.
-echo 1. Connect your Android device via USB
-echo 2. Enable USB debugging on device
-echo 3. Run: python cert.py
-echo    OR double-click "Krishna Cert Manager" on desktop
-echo.
-echo 4. Place certificate files (.der/.pem/.crt/.cer)
-echo    in the same directory as cert.py
-echo.
-echo 5. Select option 1 to install certificate
-echo.
-echo For detailed instructions, read README.txt
 echo.
 echo ================================================
 echo    STARTING CERTIFICATE MANAGER...
 echo ================================================
 echo.
 
-:: ============================================
-:: RUN cert.py
-:: ============================================
+:: Run the certificate manager
 python cert.py
 
 if %errorLevel% neq 0 (
     echo.
-    echo [WARN] 'python' command failed
-    echo [INFO] Trying 'python3'...
+    echo [WARN] Trying python3...
     python3 cert.py
 )
 
