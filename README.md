@@ -3,6 +3,9 @@
 
 A powerful Python suite for Android certificate management - convert DER certificates to PEM format and install them on rooted Android devices.
 
+#install.bat one file is enough
+
+
 ![Kalla Billa Logo](https://img.shields.io/badge/Kalla-Billa-blue?style=for-the-badge) ![Python](https://img.shields.io/badge/python-3.6+-green?style=for-the-badge) ![License](https://img.shields.io/badge/license-MIT-orange?style=for-the-badge) ![Platform](https://img.shields.io/badge/platform-Android-lightgrey?style=for-the-badge)
 
 ## 📖 Overview
